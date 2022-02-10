@@ -1,14 +1,14 @@
 module.exports = {
   siteMetadata: {
-    title: `Gatsby Starter Blog`,
+    title: `Token Gated Gatsby Starter Blog`,
     author: {
-      name: `Kyle Mathews`,
-      summary: `who lives and works in San Francisco building useful things.`,
+      name: `Unlock Team`,
+      summary: `who wants to help monetize the web with memberships!`,
     },
-    description: `A starter blog demonstrating what Gatsby can do.`,
-    siteUrl: `https://gatsbystarterblogsource.gatsbyjs.io/`,
+    description: `A starter blog demonstrating how to easily token-gate publishing.`,
+    siteUrl: `https://unlock-protocol.com`,
     social: {
-      twitter: `kylemathews`,
+      twitter: `unlockprotocol`,
     },
     locks: [
       {
