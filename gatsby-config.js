@@ -10,6 +10,12 @@ module.exports = {
     social: {
       twitter: `kylemathews`,
     },
+    locks: [
+      {
+        address: "0x889559AD98a3438bA6D471491A8Cd9c7C4c640b6",
+        network: 4,
+      },
+    ],
   },
   plugins: [
     `gatsby-plugin-image`,
@@ -75,15 +81,17 @@ module.exports = {
         feeds: [
           {
             serialize: ({ query: { site, allMarkdownRemark } }) => {
-              return allMarkdownRemark.nodes.map(node => {
-                return Object.assign({}, node.frontmatter, {
-                  description: node.excerpt,
-                  date: node.frontmatter.date,
-                  url: site.siteMetadata.siteUrl + node.fields.slug,
-                  guid: site.siteMetadata.siteUrl + node.fields.slug,
-                  custom_elements: [{ "content:encoded": node.html }],
+              return allMarkdownRemark.nodes
+                .filter(posts => posts.fields.published)
+                .map(node => {
+                  return Object.assign({}, node.frontmatter, {
+                    description: node.excerpt,
+                    date: node.frontmatter.date,
+                    url: site.siteMetadata.siteUrl + node.fields.slug,
+                    guid: site.siteMetadata.siteUrl + node.fields.slug,
+                    custom_elements: [{ "content:encoded": node.html }],
+                  })
                 })
-              })
             },
             query: `
               {
@@ -95,6 +103,7 @@ module.exports = {
                     html
                     fields {
                       slug
+                      published
                     }
                     frontmatter {
                       title
