@@ -1,6 +1,7 @@
 const path = require(`path`)
 const { createFilePath } = require(`gatsby-source-filesystem`)
-
+const config = require("./gatsby-config")
+const { authorized } = require("./src/utils")
 exports.createPages = async ({ graphql, actions, reporter }) => {
   const { createPage } = actions
 
@@ -11,14 +12,27 @@ exports.createPages = async ({ graphql, actions, reporter }) => {
   const result = await graphql(
     `
       {
+        site {
+          siteMetadata {
+            locks {
+              network
+              address
+            }
+          }
+        }
         allMarkdownRemark(
           sort: { fields: [frontmatter___date], order: ASC }
           limit: 1000
         ) {
           nodes {
             id
+            frontmatter {
+              title
+              signature
+            }
             fields {
               slug
+              published
             }
           }
         }
@@ -34,7 +48,9 @@ exports.createPages = async ({ graphql, actions, reporter }) => {
     return
   }
 
-  const posts = result.data.allMarkdownRemark.nodes
+  const posts = result.data.allMarkdownRemark.nodes.filter(
+    post => post.fields.published
+  )
 
   // Create blog posts pages
   // But only if there's at least one markdown file found at "content/blog" (defined in gatsby-config.js)
@@ -44,7 +60,6 @@ exports.createPages = async ({ graphql, actions, reporter }) => {
     posts.forEach((post, index) => {
       const previousPostId = index === 0 ? null : posts[index - 1].id
       const nextPostId = index === posts.length - 1 ? null : posts[index + 1].id
-
       createPage({
         path: post.fields.slug,
         component: blogPost,
@@ -58,11 +73,20 @@ exports.createPages = async ({ graphql, actions, reporter }) => {
   }
 }
 
-exports.onCreateNode = ({ node, actions, getNode }) => {
-  const { createNodeField } = actions
-
+exports.onCreateNode = async ({ node, actions, getNode }) => {
+  const { createNodeField, deleteNode } = actions
   if (node.internal.type === `MarkdownRemark`) {
     const value = createFilePath({ node, getNode })
+
+    createNodeField({
+      name: `published`,
+      node,
+      value: await authorized(
+        node.frontmatter.signature,
+        value,
+        config.siteMetadata.locks
+      ),
+    })
 
     createNodeField({
       name: `slug`,
@@ -86,6 +110,12 @@ exports.createSchemaCustomization = ({ actions }) => {
       author: Author
       siteUrl: String
       social: Social
+      locks: [Lock]!
+    }
+
+    type Lock {
+      address: String
+      network: Int
     }
 
     type Author {
@@ -110,6 +140,7 @@ exports.createSchemaCustomization = ({ actions }) => {
 
     type Fields {
       slug: String
+      published: Boolean
     }
   `)
 }
