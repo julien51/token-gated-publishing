@@ -24,6 +24,8 @@ Once you have the NFT in your wallet, you can author a new post with these steps
 
 The build script will look at the signer of `signature` field in the post. If that address does indeed have a valid membership NFT, the post will be published!
 
+<img width="466" alt="CleanShot 2022-02-11 at 11 41 13@2x" src="https://user-images.githubusercontent.com/50103/153579854-a5bcf12a-20d5-4ff6-abe1-40f6863c5ed5.png">
+
 ## Usage and Deployment
 
 1. Fork this repo
